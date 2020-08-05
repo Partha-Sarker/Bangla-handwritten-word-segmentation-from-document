@@ -7,8 +7,8 @@ opencv 4.4.0
 
 ## Examples:
 ```python
-python main.pys #will segment pages/test.jpg or
+python main.py #will segment pages/test.jpg or
 ```
 ```python
-python main.py pages/1.jpg #will segment pages/1.jpg or
+python main.py pages/1.jpg #will segment pages/1.jpg
 ```
