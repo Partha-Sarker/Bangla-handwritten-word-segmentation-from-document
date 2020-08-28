@@ -37,8 +37,8 @@ def segment_words_from_line(src):
     for cnt in reduced_contours:
         word_number += 1
         mask = e.get_contour_content(cnt, blur_line)
-        expanded_mask = e.expand_mask(mask, 10, 4, 1)
-        word = e.get_mask_content(expanded_mask, line)
+        eroded_mask = e.erode_mask(mask, 10, 4, 1)
+        word = e.get_mask_content(eroded_mask, line)
         file_name = '{}{}_word_{}.jpg'.format(dir_name, line_name, word_number)
         cv2.imwrite(file_name, word)
 
@@ -55,7 +55,7 @@ def segment_lines_from_document(src):
     contours, hierarchy = cv2.findContours(cv2.bitwise_not(blur_border), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     larger_contours = e.get_larger_contours(contours, 50)
     larger_contours = sorted(larger_contours, key=lambda ctr: cv2.boundingRect(ctr)[1])
-    expanded_contours = e.expand_contours(larger_contours, blur_border, 10, 1, 1)
+    #expanded_contours = e.expand_contours(larger_contours, blur_border, 10, 1, 1)
     out_dir_name = 'segmented_lines/'+image_name+'/'
     create_directory(out_dir_name)
     

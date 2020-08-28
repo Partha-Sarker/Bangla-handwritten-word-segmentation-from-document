@@ -56,23 +56,30 @@ def get_contour_content(contour, copy_from, original_size=True):
         result = copy_from[y:y+h, x:x+w]
     return result
 
-def expand_contours(contours, src_image, h_kernel=5, v_kernel=1, iterations=1):
-    expanded_contours = []
-    for c in contours:
-        mask = get_contour_content(c, src_image)
-        expanded_mask = expand_mask(mask, h_kernel, v_kernel, iterations)
-        expanded_mask = add_white_border(expanded_mask, 1)
-        expanded_contour, _ = cv2.findContours(cv2.bitwise_not(expanded_mask), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        expanded_contour = get_largest_contour(expanded_contour)
-        expanded_contours.append(expanded_contour)
-    return expanded_contours
+# def expand_contours(contours, src_image, h_kernel=5, v_kernel=1, iterations=1):
+#     expanded_contours = []
+#     for c in contours:
+#         mask = get_contour_content(c, src_image)
+#         expanded_mask = expand_mask(mask, h_kernel, v_kernel, iterations)
+#         expanded_mask = add_white_border(expanded_mask, 1)
+#         expanded_contour, _ = cv2.findContours(cv2.bitwise_not(expanded_mask), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+#         expanded_contour = get_largest_contour(expanded_contour)
+#         expanded_contours.append(expanded_contour)
+#     return expanded_contours
 
 
-def expand_mask(mask, h_kernel=5, v_kernel=1, iterations=1):
+def erode_mask(mask, h_kernel=5, v_kernel=1, iterations=1):
     kernel = np.ones((h_kernel, v_kernel), np.uint8)
-    expanded = cv2.erode(mask, kernel, iterations)
-    expanded = add_white_border(expanded)
-    return expanded
+    eroded = cv2.erode(mask, kernel, iterations)
+    eroded = add_white_border(eroded)
+    return eroded
+
+
+def get_mask_content(mask, source):
+    contours, hierarchy = cv2.findContours(cv2.bitwise_not(mask), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    largest_contour = get_largest_contour(contours)
+    word = get_contour_content(largest_contour, source, original_size=False)
+    return word
 
 def get_largest_contour(contours):
     largest_area = -3
@@ -80,14 +87,6 @@ def get_largest_contour(contours):
         if cv2.contourArea(contour) > largest_area:
             largest_contour = contour
     return largest_contour
-
-
-def get_mask_content(mask, source):
-    contours, hierarchy = cv2.findContours(cv2.bitwise_not(mask), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    largest_contour = get_largest_contour(contours)
-    line = get_contour_content(largest_contour, source, original_size=False)
-    return line
-
 
 def get_larger_contours(contours, min_area=50):
     cleaned_contours = []
