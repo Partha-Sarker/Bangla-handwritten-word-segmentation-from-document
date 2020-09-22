@@ -37,8 +37,8 @@ def segment_words_from_line(src):
     for cnt in reduced_contours:
         word_number += 1
         mask = e.get_contour_content(cnt, blur_line)
-        eroded_mask = e.erode_mask(mask, 10, 4, 1)
-        word = e.get_mask_content(eroded_mask, line)
+        expanded_mask = e.expand_mask(mask, 10, 4, 1)
+        word = e.get_mask_content(expanded_mask, line)
         file_name = '{}{}_word_{}.jpg'.format(dir_name, line_name, word_number)
         cv2.imwrite(file_name, word)
 
