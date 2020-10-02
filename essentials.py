@@ -21,7 +21,6 @@ def resize_image(image, height=0, width=0):
 
 def convert_to_binary(img, block_size, c):
     th = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, c)
-    #     th = cv2.bitwise_not(th)
     return th
 
 
@@ -101,16 +100,7 @@ def get_larger_contours(contours, min_area):
 
 
 def get_black_percentage_from_mask(mask, line):
-    mask = mask.flatten()
-    line = line.flatten()
-    black = 0
-    white = 0
-    for i in range(len(mask)):
-        if mask[i] > 127:
-            continue
-        if mask[i] < 127 and line[i] < 127:
-            black += 1
-        else:
-            white += 1
-    percentage = float(black) / float(black + white)
-    return percentage * 100
+    mask_black_count = np.count_nonzero(mask < 127)
+    line_black_count = np.count_nonzero(line < 127)
+    percentage = line_black_count/mask_black_count*100
+    return percentage
