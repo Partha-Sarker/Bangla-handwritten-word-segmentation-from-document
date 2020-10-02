@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import os
 
 
 def resize_image(image, height=0, width=0):
@@ -20,7 +19,7 @@ def resize_image(image, height=0, width=0):
     return resized
 
 
-def convert_to_binary(img, block_size=35, c=11):
+def convert_to_binary(img, block_size, c):
     th = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, c)
     #     th = cv2.bitwise_not(th)
     return th
@@ -47,25 +46,6 @@ def add_white_border(image, border_size=1, original_size=True):
     return image_border
 
 
-# def get_contour_content(contour, copy_from, original_size=True):
-#     rect = cv2.boundingRect(contour)
-#     x, y, w, h = rect
-#     if original_size:
-#         result = np.full_like(copy_from, 255)
-#         result[y:y + h, x:x + w] = copy_from[y:y + h, x:x + w]
-#     else:
-#         result = np.empty([w, h], dtype=np.int8)
-#         result = copy_from[y:y + h, x:x + w]
-#     return result
-
-
-# def get_mask_content(mask, source):
-#     contours, hierarchy = cv2.findContours(cv2.bitwise_not(mask), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-#     largest_contour = get_largest_contour(contours)
-#     word = get_contour_content(largest_contour, source, original_size=False)
-#     return word
-
-
 def get_contour_content(contour, copy_from, original_size=True):
     mask = np.full_like(copy_from, 255)
     cv2.fillPoly(mask, pts=[contour], color=0)
@@ -85,7 +65,7 @@ def get_mask_content(mask, source):
     return content
 
 
-def expand_contours(contours, src_image, h_kernel=5, v_kernel=1, iterations=1):
+def expand_contours(contours, src_image, h_kernel, v_kernel=1, iterations=1):
     expanded_contours = []
     for c in contours:
         mask = get_contour_content(c, src_image)
@@ -97,7 +77,7 @@ def expand_contours(contours, src_image, h_kernel=5, v_kernel=1, iterations=1):
     return expanded_contours
 
 
-def expand_mask(mask, h_kernel=5, v_kernel=1, iterations=1):
+def expand_mask(mask, h_kernel, v_kernel=1, iterations=1):
     kernel = np.ones((h_kernel, v_kernel), np.uint8)
     eroded = cv2.erode(mask, kernel, iterations)
     eroded = add_white_border(eroded)
@@ -112,9 +92,25 @@ def get_largest_contour(contours):
     return largest_contour
 
 
-def get_larger_contours(contours, min_area=50):
+def get_larger_contours(contours, min_area):
     cleaned_contours = []
     for c in contours:
         if cv2.contourArea(c) >= min_area:
             cleaned_contours.append(c)
     return cleaned_contours
+
+
+def get_black_percentage_from_mask(mask, line):
+    mask = mask.flatten()
+    line = line.flatten()
+    black = 0
+    white = 0
+    for i in range(len(mask)):
+        if mask[i] > 127:
+            continue
+        if mask[i] < 127 and line[i] < 127:
+            black += 1
+        else:
+            white += 1
+    percentage = float(black) / float(black + white)
+    return percentage * 100

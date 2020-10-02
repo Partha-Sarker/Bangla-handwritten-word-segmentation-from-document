@@ -4,6 +4,7 @@ Segment words from document.ipynb
 Segment Word Parameters.ipynb
 Segment Line Parameters.ipynb
 /__pycache__/
+__pycache__/
 /.ipynb_checkpoints/
 /segmented_lines/
 /segmented_words/

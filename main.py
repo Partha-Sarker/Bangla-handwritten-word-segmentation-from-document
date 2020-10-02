@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from os.path import basename
 import essentials as e
 import sys
 from pathlib import Path
@@ -16,7 +17,7 @@ def get_file_name_from_path(path):
 
 def get_parent_directory_from_path(path):
     path = Path(path)
-    return str(path.parent)
+    return basename(path.parent)
 
 def segment_words_from_line(src):
     image_name = get_parent_directory_from_path(src)
@@ -29,7 +30,7 @@ def segment_words_from_line(src):
     
     contours, hierarchy = cv2.findContours(cv2.bitwise_not(blur_line), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
-    reduced_contours = e.get_larger_contours(contours)
+    reduced_contours = e.get_larger_contours(contours, 10)
     
     dir_name = 'segmented_words/'+image_name+'/'
     create_directory(dir_name)
