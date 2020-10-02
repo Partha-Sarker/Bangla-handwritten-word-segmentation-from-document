@@ -24,10 +24,10 @@ def convert_to_binary(img, block_size, c):
     return th
 
 
-def add_white_border(image, border_size=1, original_size=True):
+def add_white_border(image, border_size=2, maintain_original_size=True):
     h, w = image.shape[0:2]
 
-    if original_size:
+    if maintain_original_size:
         h_border = border_size
         w_border = border_size
         if h_border > h:
@@ -45,12 +45,12 @@ def add_white_border(image, border_size=1, original_size=True):
     return image_border
 
 
-def get_contour_content(contour, copy_from, original_size=True):
+def get_contour_content(contour, copy_from, maintain_original_size=True):
     mask = np.full_like(copy_from, 255)
     cv2.fillPoly(mask, pts=[contour], color=0)
     mask = cv2.bitwise_not(mask)
     content = cv2.bitwise_and(mask, cv2.bitwise_not(copy_from))
-    if not original_size:
+    if not maintain_original_size:
         rect = cv2.boundingRect(contour)
         x, y, w, h = rect
         content = content[y:y + h, x:x + w]
