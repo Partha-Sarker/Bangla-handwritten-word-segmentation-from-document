@@ -88,6 +88,7 @@ def get_largest_contour(contours):
     for contour in contours:
         if cv2.contourArea(contour) > largest_area:
             largest_contour = contour
+            largest_area = cv2.contourArea(contour)
     return largest_contour
 
 
