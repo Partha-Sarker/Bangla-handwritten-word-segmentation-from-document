@@ -21,6 +21,7 @@ blur_h_kernel_c = y0 - blur_h_kernel_m * x0
 
 DOCUMENT_WIDTH = 1000
 LINE_HEIGHT = 150
+DOWNSCALED_DOCUMENT_HEIGHT = 750
 
 
 def create_directory(dir_name):
@@ -139,6 +140,39 @@ def segment_words(src, percentage):
         cv2.imwrite(file_name, word)
 
 
+def show_all_stages(src):
+    original_image = cv2.imread(src, cv2.IMREAD_GRAYSCALE)
+    image = e.resize_image(original_image, width=DOCUMENT_WIDTH)
+
+    th = e.convert_to_binary(image, 15, 15)
+    blur = cv2.GaussianBlur(th, (199, 17), 57)
+
+    blur = e.convert_to_binary(blur, 91, 3)
+    blur_border = e.add_white_border(blur)
+
+    contours, hierarchy = cv2.findContours(cv2.bitwise_not(blur_border), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    larger_contours = e.get_larger_contours(contours, 1000)
+    larger_contours = sorted(larger_contours, key=lambda ctr: cv2.boundingRect(ctr)[1])
+    line_percentage = get_line_percentage(larger_contours)
+    increase_size_amount = get_contour_increase_amount(line_percentage)
+
+    expanded_contours = e.expand_contours(larger_contours, blur_border, h_kernel=increase_size_amount)
+
+    con_image = image.copy()
+    cv2.drawContours(con_image, expanded_contours, -1, 0, 1)
+
+    downscaled_image = e.resize_image(image, height=DOWNSCALED_DOCUMENT_HEIGHT)
+    downscaled_th = e.resize_image(th, height=DOWNSCALED_DOCUMENT_HEIGHT)
+    downscaled_blur_border = e.resize_image(blur_border, height=DOWNSCALED_DOCUMENT_HEIGHT)
+    downscaled_con_image = e.resize_image(con_image, height=DOWNSCALED_DOCUMENT_HEIGHT)
+    cv2.imshow('contour', downscaled_con_image)
+    cv2.imshow('blur_border', downscaled_blur_border)
+    cv2.imshow('th', downscaled_th)
+    cv2.imshow('image', downscaled_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 def main(src):
     if not os.path.exists(src):
         print('file does not exist')
@@ -150,7 +184,18 @@ def main(src):
         segment_words(location, black_percentage)
     print("All words has been segmented from", image_name)
 
+
 src = 'pages/test.jpg'
-if len(sys.argv) == 2:
-    src = sys.argv[1]
+should_show_stages = False
+if len(sys.argv) > 1:
+    if sys.argv[1]:
+        should_show_stages = True
+    else:
+        src = sys.argv[1]
+
+if len(sys.argv) > 2 and sys.argv[2] == 'True':
+    should_show_stages = True
+
 main(src)
+if should_show_stages:
+    show_all_stages(src)

@@ -9,3 +9,4 @@ __pycache__/
 /segmented_lines/
 /segmented_words/
 /pages/bitmap/
+.idea/

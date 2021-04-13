@@ -12,6 +12,9 @@ python main.py #will segment pages/test.jpg or
 ```python
 python main.py pages/1.jpg #will segment pages/1.jpg
 ```
+```python
+python main.py pages/1.jpg True #will segment pages/1.jpg and show the stages
+```
 
 ## Steps:
 ![](steps/0.png)
