@@ -187,14 +187,15 @@ def main(src):
 
 src = 'pages/test.jpg'
 should_show_stages = False
-if len(sys.argv) > 1:
-    if sys.argv[1]:
+if len(sys.argv) == 2:
+    if sys.argv[1] == 'True':
         should_show_stages = True
     else:
         src = sys.argv[1]
 
 if len(sys.argv) > 2 and sys.argv[2] == 'True':
     should_show_stages = True
+    src = sys.argv[1]
 
 main(src)
 if should_show_stages:
